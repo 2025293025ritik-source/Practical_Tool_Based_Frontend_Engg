@@ -1,0 +1,2866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Nexcare-AI | Clinical Pre-Consultation</title>
+
+  <style>
+    :root {
+      --navy: #123A63;
+      --blue: #1769A8;
+      --blue-soft: #EAF5FB;
+
+      --green: #0B8F5A;
+      --green-soft: #EAF8F2;
+
+      --orange: #E45B35;
+
+      --ink: #17232E;
+      --muted: #657582;
+
+      --line: #D8E2E9;
+      --page: #F5F8FA;
+      --white: #FFFFFF;
+
+      --shadow: 0 14px 40px rgba(18, 58, 99, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main {
+      flex: 1;
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .topbar {
+      height: 76px;
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 12px;
+
+      background: var(--navy);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::before {
+      content: "N";
+
+      color: white;
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .brand-dot {
+      position: absolute;
+
+      width: 8px;
+      height: 8px;
+
+      background: var(--green);
+
+      border-radius: 50%;
+
+      right: 7px;
+      top: 7px;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 750;
+      color: var(--navy);
+      letter-spacing: -0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .language-button,
+    .help-button {
+      border: 1px solid var(--line);
+      background: var(--white);
+
+      color: var(--navy);
+
+      padding: 9px 14px;
+      border-radius: 9px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      transition: 0.2s ease;
+    }
+
+    .language-button:hover,
+    .help-button:hover {
+      background: var(--blue-soft);
+      border-color: #BBD5E5;
+    }
+
+    /* =========================================================
+       PROGRESS
+       ========================================================= */
+
+    .progress-wrapper {
+      max-width: 760px;
+      margin: 0 auto 34px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-bottom: 10px;
+    }
+
+    .progress-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+
+      background: #E3EAEF;
+
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 25%;
+
+      background: var(--green);
+
+      border-radius: 10px;
+
+      transition: width 0.35s ease;
+    }
+
+    /* =========================================================
+       SCREEN
+       ========================================================= */
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .content-card {
+      background: var(--white);
+
+      border: 1px solid var(--line);
+
+      border-radius: 20px;
+
+      box-shadow: var(--shadow);
+
+      overflow: hidden;
+    }
+
+    .content-inner {
+      padding: 42px;
+    }
+
+    /* =========================================================
+       WELCOME
+       ========================================================= */
+
+    .welcome-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      min-height: 480px;
+    }
+
+    .welcome-main {
+      padding: 54px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+
+      letter-spacing: 1.4px;
+
+      margin-bottom: 15px;
+    }
+
+    .welcome-title {
+      font-size: clamp(34px, 4vw, 52px);
+
+      line-height: 1.08;
+
+      letter-spacing: -1.5px;
+
+      color: var(--navy);
+
+      margin-bottom: 18px;
+    }
+
+    .welcome-description {
+      max-width: 590px;
+
+      color: var(--muted);
+
+      font-size: 17px;
+      line-height: 1.65;
+
+      margin-bottom: 30px;
+    }
+
+    .welcome-benefits {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      margin-bottom: 32px;
+    }
+
+    .benefit {
+      background: #F8FBFC;
+
+      border: 1px solid var(--line);
+
+      border-radius: 12px;
+
+      padding: 15px;
+
+      color: #425460;
+
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .benefit-icon {
+      width: 30px;
+      height: 30px;
+
+      border-radius: 8px;
+
+      background: var(--green-soft);
+
+      color: var(--green);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 9px;
+
+      font-weight: 800;
+    }
+
+    .welcome-side {
+      background: var(--blue-soft);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 38px;
+    }
+
+    .health-visual {
+      width: 100%;
+      max-width: 310px;
+    }
+
+    .health-circle {
+      width: 220px;
+      height: 220px;
+
+      margin: 0 auto 22px;
+
+      border-radius: 50%;
+
+      background: var(--white);
+
+      border: 14px solid rgba(23, 105, 168, 0.12);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: relative;
+    }
+
+    .health-circle-inner {
+      width: 125px;
+      height: 125px;
+
+      border-radius: 50%;
+
+      background: var(--green-soft);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: var(--green);
+
+      font-size: 45px;
+      font-weight: 800;
+    }
+
+    .visual-card {
+      background: var(--white);
+
+      border: 1px solid #D5E4ED;
+
+      border-radius: 12px;
+
+      padding: 16px;
+
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .visual-dot {
+      width: 10px;
+      height: 10px;
+
+      background: var(--green);
+
+      border-radius: 50%;
+    }
+
+    .visual-card-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* =========================================================
+       HEADINGS
+       ========================================================= */
+
+    .section-header {
+      text-align: center;
+
+      max-width: 680px;
+
+      margin: 0 auto 32px;
+    }
+
+    .section-title {
+      color: var(--navy);
+
+      font-size: 34px;
+
+      letter-spacing: -0.8px;
+
+      margin-bottom: 10px;
+    }
+
+    .section-description {
+      color: var(--muted);
+
+      line-height: 1.6;
+
+      font-size: 15px;
+    }
+
+    /* =========================================================
+       FORM
+       ========================================================= */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 20px;
+
+      max-width: 760px;
+
+      margin: 0 auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      color: #344752;
+
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+
+      border: 1px solid #CBD8E0;
+
+      border-radius: 10px;
+
+      padding: 13px 14px;
+
+      background: white;
+
+      color: var(--ink);
+
+      outline: none;
+
+      transition: 0.2s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--blue);
+
+      box-shadow: 0 0 0 3px rgba(23, 105, 168, 0.10);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: #98A7B0;
+    }
+
+    /* =========================================================
+       CONSENT
+       ========================================================= */
+
+    .privacy-card {
+      max-width: 760px;
+
+      margin: 0 auto 24px;
+
+      background: var(--green-soft);
+
+      border: 1px solid #CFEBDD;
+
+      border-radius: 14px;
+
+      padding: 20px;
+
+      display: flex;
+
+      gap: 15px;
+    }
+
+    .privacy-icon {
+      flex-shrink: 0;
+
+      width: 38px;
+      height: 38px;
+
+      border-radius: 10px;
+
+      background: white;
+
+      color: var(--green);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-weight: 800;
+    }
+
+    .privacy-content h3 {
+      color: #176342;
+
+      font-size: 15px;
+
+      margin-bottom: 5px;
+    }
+
+    .privacy-content p {
+      color: #4C6B5D;
+
+      font-size: 13px;
+
+      line-height: 1.55;
+    }
+
+    .consent-box {
+      max-width: 760px;
+
+      margin: 0 auto;
+
+      border: 1px solid var(--line);
+
+      border-radius: 12px;
+
+      padding: 18px;
+
+      display: flex;
+
+      align-items: flex-start;
+
+      gap: 12px;
+
+      background: #FBFCFD;
+    }
+
+    .consent-checkbox {
+      width: 20px;
+      height: 20px;
+
+      margin-top: 1px;
+
+      accent-color: var(--green);
+
+      flex-shrink: 0;
+    }
+
+    .consent-text {
+      color: #465762;
+
+      font-size: 14px;
+
+      line-height: 1.55;
+    }
+
+    /* =========================================================
+       INTERVIEW
+       ========================================================= */
+
+    .patient-greeting {
+      max-width: 760px;
+
+      margin: 0 auto 22px;
+
+      padding: 15px 18px;
+
+      background: var(--blue-soft);
+
+      border: 1px solid #D2E7F3;
+
+      border-radius: 12px;
+
+      color: var(--navy);
+
+      font-size: 15px;
+
+      font-weight: 600;
+    }
+
+    .interview-card {
+      max-width: 760px;
+
+      margin: 0 auto;
+    }
+
+    .question {
+      color: var(--navy);
+
+      font-size: 30px;
+
+      line-height: 1.2;
+
+      text-align: center;
+
+      margin-bottom: 10px;
+    }
+
+    .question-description {
+      color: var(--muted);
+
+      text-align: center;
+
+      font-size: 14px;
+
+      line-height: 1.6;
+
+      margin-bottom: 28px;
+    }
+
+    .voice-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      margin-bottom: 26px;
+    }
+
+    .mic-button {
+      width: 90px;
+      height: 90px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background: var(--green);
+
+      color: white;
+
+      font-size: 34px;
+
+      box-shadow: 0 12px 28px rgba(11, 143, 90, 0.22);
+
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mic-button:hover {
+      transform: translateY(-2px);
+
+      box-shadow: 0 15px 32px rgba(11, 143, 90, 0.28);
+    }
+
+    .mic-button.listening {
+      animation: pulse 1.3s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(11, 143, 90, 0.35);
+      }
+
+      70% {
+        box-shadow: 0 0 0 18px rgba(11, 143, 90, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(11, 143, 90, 0);
+      }
+    }
+
+    .mic-status {
+      color: var(--muted);
+
+      font-size: 13px;
+
+      margin-top: 13px;
+
+      min-height: 18px;
+    }
+
+    .or-divider {
+      display: flex;
+
+      align-items: center;
+
+      gap: 15px;
+
+      color: #8998A1;
+
+      font-size: 12px;
+
+      font-weight: 700;
+
+      margin: 20px 0;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: "";
+
+      width: 100px;
+
+      height: 1px;
+
+      background: var(--line);
+    }
+
+    .answer-box {
+      position: relative;
+    }
+
+    .form-textarea {
+      min-height: 125px;
+
+      resize: vertical;
+
+      line-height: 1.55;
+    }
+
+    .private-note {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 7px;
+
+      color: var(--green);
+
+      font-size: 12px;
+
+      margin-top: 10px;
+    }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+
+    .button-row {
+      max-width: 760px;
+
+      margin: 32px auto 0;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 12px;
+    }
+
+    .btn {
+      border: none;
+
+      border-radius: 10px;
+
+      padding: 13px 22px;
+
+      font-size: 14px;
+
+      font-weight: 750;
+
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+
+      color: white;
+
+      min-width: 150px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0E3152;
+
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.45;
+
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: white;
+
+      border: 1px solid var(--line);
+
+      color: var(--navy);
+    }
+
+    .btn-secondary:hover {
+      background: #F7FAFC;
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .site-footer {
+      width: 100%;
+
+      background: white;
+
+      border-top: 1px solid var(--line);
+
+      padding: 17px 32px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .site-footer strong {
+      color: var(--navy);
+    }
+
+    /* =========================================================
+       HELP MODAL
+       ========================================================= */
+
+    .modal-overlay {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      background: rgba(10, 28, 43, 0.45);
+
+      z-index: 1000;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+
+      max-width: 440px;
+
+      background: white;
+
+      border-radius: 16px;
+
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
+
+      padding: 28px;
+    }
+
+    .modal h2 {
+      color: var(--navy);
+
+      font-size: 22px;
+
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      color: var(--muted);
+
+      line-height: 1.6;
+
+      font-size: 14px;
+
+      margin-bottom: 20px;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 850px) {
+
+      .welcome-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome-side {
+        display: none;
+      }
+
+      .welcome-main {
+        padding: 38px 30px;
+      }
+
+      .content-inner {
+        padding: 30px 22px;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .topbar {
+        padding: 0 17px;
+        height: 68px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+      }
+
+      .help-button {
+        display: none;
+      }
+
+      .main {
+        padding: 18px 12px 28px;
+      }
+
+      .content-card {
+        border-radius: 15px;
+      }
+
+      .welcome-main {
+        padding: 30px 22px;
+      }
+
+      .welcome-title {
+        font-size: 35px;
+      }
+
+      .welcome-description {
+        font-size: 15px;
+      }
+
+      .welcome-benefits {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: auto;
+      }
+
+      .section-title {
+        font-size: 28px;
+      }
+
+      .question {
+        font-size: 25px;
+      }
+
+      .button-row {
+        flex-direction: column-reverse;
+      }
+
+      .button-row .btn {
+        width: 100%;
+      }
+
+      .site-footer {
+        padding: 16px 20px;
+
+        flex-direction: column;
+
+        gap: 6px;
+
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- =======================================================
+       HEADER
+       ======================================================= -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        <span class="brand-dot"></span>
+      </div>
+
+      <div class="brand-name">
+        Nexcare-AI
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        class="language-button"
+        id="languageButton"
+        onclick="toggleLanguage()"
+      >
+        हिन्दी
+      </button>
+
+      <button
+        class="help-button"
+        data-i18n="help"
+        onclick="openHelp()"
+      >
+        Help
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       MAIN
+       ======================================================= -->
+
+  <main class="main">
+
+    <div class="progress-wrapper">
+
+      <div class="progress-top">
+
+        <span
+          class="progress-label"
+          id="progressText"
+        >
+          Step 1 of 4
+        </span>
+
+        <span
+          class="progress-label"
+          id="progressName"
+        >
+          Welcome
+        </span>
+
+      </div>
+
+      <div class="progress-track">
+
+        <div
+          class="progress-fill"
+          id="progressFill"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SCREEN 1 — WELCOME
+         ===================================================== -->
+
+    <section
+      class="screen active"
+      id="welcomeScreen"
+    >
+
+      <div class="content-card">
+
+        <div class="welcome-layout">
+
+          <div class="welcome-main">
+
+            <div
+              class="eyebrow"
+              data-i18n="eyebrow"
+            >
+              BEFORE YOU SEE THE DOCTOR
+            </div>
+
+            <h1
+              class="welcome-title"
+              data-i18n="welcomeTitle"
+            >
+              Let's get your visit started.
+            </h1>
+
+            <p
+              class="welcome-description"
+              data-i18n="welcomeDescription"
+            >
+              Tell us what brings you in today. You can speak or type.
+              We'll organise your information for the doctor.
+            </p>
+
+            <div class="welcome-benefits">
+
+              <div class="benefit">
+
+                <div class="benefit-icon">
+                  ✓
+                </div>
+
+                <span data-i18n="benefitOne">
+                  Speak naturally in your own words.
+                </span>
+
+              </div>
+
+              <div class="benefit">
+
+                <div class="benefit-icon">
+                  🔒
+                </div>
+
+                <span data-i18n="benefitTwo">
+                  Your health information is handled privately.
+                </span>
+
+              </div>
+
+            </div>
+
+            <button
+              class="btn btn-primary"
+              data-i18n="getStarted"
+              onclick="goToPatientDetails()"
+            >
+              Get started
+            </button>
+
+          </div>
+
+
+          <div class="welcome-side">
+
+            <div class="health-visual">
+
+              <div class="health-circle">
+
+                <div class="health-circle-inner">
+                  +
+                </div>
+
+              </div>
+
+              <div class="visual-card">
+
+                <div class="visual-dot"></div>
+
+                <div
+                  class="visual-card-text"
+                  data-i18n="reviewNote"
+                >
+                  Your information will be reviewed by a healthcare
+                  professional.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SCREEN 2 — PATIENT DETAILS
+         ===================================================== -->
+
+    <section
+      class="screen"
+      id="patientScreen"
+    >
+
+      <div class="content-card">
+
+        <div class="content-inner">
+
+          <div class="section-header">
+
+            <div
+              class="eyebrow"
+              data-i18n="stepPatient"
+            >
+              PATIENT DETAILS
+            </div>
+
+            <h2
+              class="section-title"
+              data-i18n="patientTitle"
+            >
+              Tell us a little about yourself.
+            </h2>
+
+            <p
+              class="section-description"
+              data-i18n="patientDescription"
+            >
+              These details help us create the right record for your
+              consultation.
+            </p>
+
+          </div>
+
+
+          <div class="form-grid">
+
+            <div class="form-group full">
+
+              <label
+                class="form-label"
+                data-i18n="fullName"
+              >
+                Full name
+              </label>
+
+              <input
+                type="text"
+                class="form-input"
+                id="patientName"
+                data-placeholder="namePlaceholder"
+                placeholder="Enter your full name"
+                autocomplete="name"
+              />
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label
+                class="form-label"
+                data-i18n="age"
+              >
+                Age
+              </label>
+
+              <input
+                type="number"
+                class="form-input"
+                id="patientAge"
+                data-placeholder="agePlaceholder"
+                placeholder="Enter your age"
+                min="0"
+                max="120"
+              />
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label
+                class="form-label"
+                data-i18n="gender"
+              >
+                Gender
+              </label>
+
+              <select
+                class="form-select"
+                id="patientGender"
+              >
+
+                <option
+                  value=""
+                  data-i18n="selectGender"
+                >
+                  Select gender
+                </option>
+
+                <option
+                  value="male"
+                  data-i18n="male"
+                >
+                  Male
+                </option>
+
+                <option
+                  value="female"
+                  data-i18n="female"
+                >
+                  Female
+                </option>
+
+                <option
+                  value="other"
+                  data-i18n="other"
+                >
+                  Other
+                </option>
+
+                <option
+                  value="prefer-not"
+                  data-i18n="preferNot"
+                >
+                  Prefer not to say
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group full">
+
+              <label
+                class="form-label"
+                data-i18n="mobile"
+              >
+                Mobile number
+              </label>
+
+              <input
+                type="tel"
+                class="form-input"
+                id="patientPhone"
+                data-placeholder="phonePlaceholder"
+                placeholder="Enter your mobile number"
+                autocomplete="tel"
+              />
+
+            </div>
+
+          </div>
+
+
+          <div class="button-row">
+
+            <button
+              class="btn btn-secondary"
+              data-i18n="back"
+              onclick="goToWelcome()"
+            >
+              Back
+            </button>
+
+            <button
+              class="btn btn-primary"
+              data-i18n="continue"
+              onclick="savePatientAndContinue()"
+            >
+              Continue
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SCREEN 3 — CONSENT
+         ===================================================== -->
+
+    <section
+      class="screen"
+      id="consentScreen"
+    >
+
+      <div class="content-card">
+
+        <div class="content-inner">
+
+          <div class="section-header">
+
+            <div
+              class="eyebrow"
+              data-i18n="stepConsent"
+            >
+              CONSENT & PRIVACY
+            </div>
+
+            <h2
+              class="section-title"
+              data-i18n="consentTitle"
+            >
+              Before we begin
+            </h2>
+
+            <p
+              class="section-description"
+              data-i18n="consentDescription"
+            >
+              Please review the information below before continuing.
+            </p>
+
+          </div>
+
+
+          <div class="privacy-card">
+
+            <div class="privacy-icon">
+              🔒
+            </div>
+
+            <div class="privacy-content">
+
+              <h3 data-i18n="privacyHeading">
+                Your information matters
+              </h3>
+
+              <p data-i18n="privacyText">
+                Your responses are collected to help prepare information
+                for your healthcare consultation. Please provide information
+                that you are comfortable sharing.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <label class="consent-box">
+
+            <input
+              type="checkbox"
+              class="consent-checkbox"
+              id="consentCheckbox"
+              onchange="updateConsentButton()"
+            />
+
+            <span
+              class="consent-text"
+              data-i18n="consentCheck"
+            >
+              I understand and consent to providing my information for
+              this healthcare pre-consultation.
+            </span>
+
+          </label>
+
+
+          <div class="button-row">
+
+            <button
+              class="btn btn-secondary"
+              data-i18n="back"
+              onclick="goToPatientDetailsFromConsent()"
+            >
+              Back
+            </button>
+
+            <button
+              class="btn btn-primary"
+              id="consentContinueButton"
+              data-i18n="continue"
+              onclick="goToInterview()"
+              disabled
+            >
+              Continue
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SCREEN 4 — INTERVIEW
+         ===================================================== -->
+
+    <section
+      class="screen"
+      id="interviewScreen"
+    >
+
+      <div class="content-card">
+
+        <div class="content-inner">
+
+          <div class="section-header">
+
+            <div
+              class="eyebrow"
+              data-i18n="stepInterview"
+            >
+              HEALTH INTERVIEW
+            </div>
+
+          </div>
+
+
+          <!-- PATIENT GREETING -->
+
+          <div
+            class="patient-greeting"
+            id="patientGreeting"
+          >
+            Hello, Patient.
+          </div>
+
+
+          <div class="interview-card">
+
+            <h2
+              class="question"
+              data-i18n="interviewQuestion"
+            >
+              What brings you here today?
+            </h2>
+
+            <p
+              class="question-description"
+              data-i18n="interviewDescription"
+            >
+              Tell us in your own words. You do not need to use medical
+              terms.
+            </p>
+
+
+            <!-- MICROPHONE -->
+
+            <div class="voice-area">
+
+              <button
+                class="mic-button"
+                id="micButton"
+                onclick="startVoiceInput()"
+                aria-label="Microphone"
+              >
+                🎤
+              </button>
+
+              <div
+                class="mic-status"
+                id="micStatus"
+                data-i18n="micReady"
+              >
+                Tap the microphone to speak
+              </div>
+
+            </div>
+
+
+            <div
+              class="or-divider"
+              data-i18n="or"
+            >
+              OR
+            </div>
+
+
+            <div class="answer-box">
+
+              <textarea
+                class="form-textarea"
+                id="answerText"
+                data-placeholder="answerPlaceholder"
+                placeholder="Type your answer here..."
+              ></textarea>
+
+            </div>
+
+
+            <div class="private-note">
+
+              <span>🔒</span>
+
+              <span data-i18n="privateNote">
+                Your response is handled privately.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="button-row">
+
+            <button
+              class="btn btn-secondary"
+              data-i18n="back"
+              onclick="goToConsentFromInterview()"
+            >
+              Back
+            </button>
+
+            <button
+              class="btn btn-primary"
+              data-i18n="continue"
+              onclick="submitInterview()"
+            >
+              Continue
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =======================================================
+       FOOTER
+       ======================================================= -->
+
+  <footer class="site-footer">
+
+    <div>
+      © 2026 <strong>Nexcare-AI</strong>
+    </div>
+
+    <div data-i18n="footerText">
+      Designed for a simpler healthcare journey
+    </div>
+
+  </footer>
+
+</div>
+
+
+<!-- =========================================================
+     HELP MODAL
+     ========================================================= -->
+
+<div
+  class="modal-overlay"
+  id="helpModal"
+  onclick="closeHelpOutside(event)"
+>
+
+  <div class="modal">
+
+    <h2 data-i18n="helpTitle">
+      Need help?
+    </h2>
+
+    <p data-i18n="helpText">
+      You can speak naturally using the microphone or type your response
+      in the text box. If you need assistance, please ask a member of
+      the healthcare staff.
+    </p>
+
+    <button
+      class="btn btn-primary"
+      data-i18n="close"
+      onclick="closeHelp()"
+    >
+      Close
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  /* =========================================================
+     TRANSLATIONS
+     ========================================================= */
+
+  const translations = {
+
+    en: {
+
+      help: "Help",
+
+      eyebrow: "BEFORE YOU SEE THE DOCTOR",
+
+      welcomeTitle:
+        "Let's get your visit started.",
+
+      welcomeDescription:
+        "Tell us what brings you in today. You can speak or type. We'll organise your information for the doctor.",
+
+      benefitOne:
+        "Speak naturally in your own words.",
+
+      benefitTwo:
+        "Your health information is handled privately.",
+
+      getStarted:
+        "Get started",
+
+      reviewNote:
+        "Your information will be reviewed by a healthcare professional.",
+
+      stepPatient:
+        "PATIENT DETAILS",
+
+      patientTitle:
+        "Tell us a little about yourself.",
+
+      patientDescription:
+        "These details help us create the right record for your consultation.",
+
+      fullName:
+        "Full name",
+
+      namePlaceholder:
+        "Enter your full name",
+
+      age:
+        "Age",
+
+      agePlaceholder:
+        "Enter your age",
+
+      gender:
+        "Gender",
+
+      selectGender:
+        "Select gender",
+
+      male:
+        "Male",
+
+      female:
+        "Female",
+
+      other:
+        "Other",
+
+      preferNot:
+        "Prefer not to say",
+
+      mobile:
+        "Mobile number",
+
+      phonePlaceholder:
+        "Enter your mobile number",
+
+      stepConsent:
+        "CONSENT & PRIVACY",
+
+      consentTitle:
+        "Before we begin",
+
+      consentDescription:
+        "Please review the information below before continuing.",
+
+      privacyHeading:
+        "Your information matters",
+
+      privacyText:
+        "Your responses are collected to help prepare information for your healthcare consultation. Please provide information that you are comfortable sharing.",
+
+      consentCheck:
+        "I understand and consent to providing my information for this healthcare pre-consultation.",
+
+      stepInterview:
+        "HEALTH INTERVIEW",
+
+      interviewQuestion:
+        "What brings you here today?",
+
+      interviewDescription:
+        "Tell us in your own words. You do not need to use medical terms.",
+
+      micReady:
+        "Tap the microphone to speak",
+
+      micListening:
+        "Listening...",
+
+      micNotSupported:
+        "Voice input is not supported in this browser.",
+
+      micError:
+        "We could not access the microphone. Please check your browser permission.",
+
+      or:
+        "OR",
+
+      answerPlaceholder:
+        "Type your answer here...",
+
+      privateNote:
+        "Your response is handled privately.",
+
+      back:
+        "Back",
+
+      continue:
+        "Continue",
+
+      helpTitle:
+        "Need help?",
+
+      helpText:
+        "You can speak naturally using the microphone or type your response in the text box. If you need assistance, please ask a member of the healthcare staff.",
+
+      close:
+        "Close",
+
+      greeting:
+        "Hello, {name}.",
+
+      answerRecorded:
+        "Your answer has been recorded.",
+
+      enterName:
+        "Please enter your name.",
+
+      enterAge:
+        "Please enter your age.",
+
+      selectGenderAlert:
+        "Please select your gender.",
+
+      enterPhone:
+        "Please enter your mobile number.",
+
+      giveConsent:
+        "Please provide your consent before continuing.",
+
+      noAnswer:
+        "Please speak or type your answer before continuing.",
+
+      footerText:
+        "Designed for a simpler healthcare journey"
+    },
+
+
+    hi: {
+
+      help:
+        "मदद",
+
+      eyebrow:
+        "डॉक्टर से मिलने से पहले",
+
+      welcomeTitle:
+        "आइए आपकी स्वास्थ्य यात्रा शुरू करें।",
+
+      welcomeDescription:
+        "आज आपको किस समस्या के लिए आना पड़ा है, हमें बताएं। आप बोल सकते हैं या लिख सकते हैं। हम आपकी जानकारी डॉक्टर के लिए व्यवस्थित करेंगे।",
+
+      benefitOne:
+        "अपनी समस्या को अपने शब्दों में स्वाभाविक रूप से बताएं।",
+
+      benefitTwo:
+        "आपकी स्वास्थ्य जानकारी को निजी रखा जाता है।",
+
+      getStarted:
+        "शुरू करें",
+
+      reviewNote:
+        "आपकी जानकारी की समीक्षा एक स्वास्थ्य विशेषज्ञ द्वारा की जाएगी।",
+
+      stepPatient:
+        "मरीज़ का विवरण",
+
+      patientTitle:
+        "अपने बारे में थोड़ी जानकारी दें।",
+
+      patientDescription:
+        "ये जानकारी आपकी स्वास्थ्य परामर्श प्रक्रिया के लिए सही रिकॉर्ड तैयार करने में मदद करेगी।",
+
+      fullName:
+        "पूरा नाम",
+
+      namePlaceholder:
+        "अपना पूरा नाम दर्ज करें",
+
+      age:
+        "उम्र",
+
+      agePlaceholder:
+        "अपनी उम्र दर्ज करें",
+
+      gender:
+        "लिंग",
+
+      selectGender:
+        "लिंग चुनें",
+
+      male:
+        "पुरुष",
+
+      female:
+        "महिला",
+
+      other:
+        "अन्य",
+
+      preferNot:
+        "बताना नहीं चाहते",
+
+      mobile:
+        "मोबाइल नंबर",
+
+      phonePlaceholder:
+        "अपना मोबाइल नंबर दर्ज करें",
+
+      stepConsent:
+        "सहमति और गोपनीयता",
+
+      consentTitle:
+        "शुरू करने से पहले",
+
+      consentDescription:
+        "आगे बढ़ने से पहले नीचे दी गई जानकारी को ध्यान से पढ़ें।",
+
+      privacyHeading:
+        "आपकी जानकारी महत्वपूर्ण है",
+
+      privacyText:
+        "आपके उत्तर स्वास्थ्य परामर्श के लिए आवश्यक जानकारी तैयार करने में मदद करेंगे। कृपया वही जानकारी दें जिसे आप साझा करने में सहज महसूस करते हैं।",
+
+      consentCheck:
+        "मैं समझता/समझती हूँ और इस स्वास्थ्य पूर्व-परामर्श के लिए अपनी जानकारी देने की सहमति देता/देती हूँ।",
+
+      stepInterview:
+        "स्वास्थ्य बातचीत",
+
+      interviewQuestion:
+        "आज आप किस समस्या के लिए आए हैं?",
+
+      interviewDescription:
+        "अपनी समस्या को अपने शब्दों में बताएं। आपको किसी चिकित्सकीय शब्द का उपयोग करने की आवश्यकता नहीं है।",
+
+      micReady:
+        "बोलने के लिए माइक्रोफ़ोन दबाएं",
+
+      micListening:
+        "सुना जा रहा है...",
+
+      micNotSupported:
+        "इस ब्राउज़र में आवाज़ द्वारा जानकारी देना समर्थित नहीं है।",
+
+      micError:
+        "हम माइक्रोफ़ोन का उपयोग नहीं कर पाए। कृपया अपने ब्राउज़र की माइक्रोफ़ोन अनुमति जांचें।",
+
+      or:
+        "या",
+
+      answerPlaceholder:
+        "अपना उत्तर यहां लिखें...",
+
+      privateNote:
+        "आपके उत्तर को निजी रखा जाता है।",
+
+      back:
+        "वापस",
+
+      continue:
+        "आगे बढ़ें",
+
+      helpTitle:
+        "क्या आपको सहायता चाहिए?",
+
+      helpText:
+        "आप माइक्रोफ़ोन का उपयोग करके स्वाभाविक रूप से बोल सकते हैं या टेक्स्ट बॉक्स में अपना उत्तर लिख सकते हैं। सहायता की आवश्यकता होने पर स्वास्थ्य कर्मचारियों से पूछें।",
+
+      close:
+        "बंद करें",
+
+      greeting:
+        "नमस्ते, {name}।",
+
+      answerRecorded:
+        "आपका उत्तर दर्ज कर लिया गया है।",
+
+      enterName:
+        "कृपया अपना नाम दर्ज करें।",
+
+      enterAge:
+        "कृपया अपनी उम्र दर्ज करें।",
+
+      selectGenderAlert:
+        "कृपया अपना लिंग चुनें।",
+
+      enterPhone:
+        "कृपया अपना मोबाइल नंबर दर्ज करें।",
+
+      giveConsent:
+        "आगे बढ़ने से पहले कृपया अपनी सहमति दें।",
+
+      noAnswer:
+        "आगे बढ़ने से पहले कृपया बोलें या अपना उत्तर लिखें।",
+
+      footerText:
+        "एक आसान स्वास्थ्य सेवा अनुभव के लिए डिज़ाइन किया गया"
+    }
+
+  };
+
+
+  /* =========================================================
+     APPLICATION STATE
+     ========================================================= */
+
+  let currentLanguage = "en";
+
+  let currentScreen = 1;
+
+
+  /*
+   * Current patient information.
+   */
+
+  let patient = {
+
+    name: "",
+    age: "",
+    gender: "",
+    phone: ""
+
+  };
+
+
+  /*
+   * Consent belongs to the current patient.
+   */
+
+  let consentGiven = false;
+
+
+  let recognition = null;
+
+  let isListening = false;
+
+
+  /* =========================================================
+     LANGUAGE SYSTEM
+     ========================================================= */
+
+  function updateLanguage() {
+
+    const languageData =
+      translations[currentLanguage];
+
+
+    document
+      .querySelectorAll("[data-i18n]")
+      .forEach(element => {
+
+        const key =
+          element.getAttribute("data-i18n");
+
+        if (languageData[key]) {
+
+          element.textContent =
+            languageData[key];
+
+        }
+
+      });
+
+
+    document
+      .querySelectorAll("[data-placeholder]")
+      .forEach(element => {
+
+        const key =
+          element.getAttribute("data-placeholder");
+
+        if (languageData[key]) {
+
+          element.placeholder =
+            languageData[key];
+
+        }
+
+      });
+
+
+    const languageButton =
+      document.getElementById("languageButton");
+
+
+    if (currentLanguage === "en") {
+
+      languageButton.textContent =
+        "हिन्दी";
+
+    } else {
+
+      languageButton.textContent =
+        "English";
+
+    }
+
+
+    updateProgress();
+
+    updatePatientGreeting();
+
+
+    if (!isListening) {
+
+      const micStatus =
+        document.getElementById("micStatus");
+
+      micStatus.textContent =
+        languageData.micReady;
+
+    }
+
+  }
+
+
+  function toggleLanguage() {
+
+    if (currentLanguage === "en") {
+
+      currentLanguage = "hi";
+
+    } else {
+
+      currentLanguage = "en";
+
+    }
+
+    updateLanguage();
+
+  }
+
+
+  /* =========================================================
+     SCREEN MANAGEMENT
+     ========================================================= */
+
+  function showScreen(number) {
+
+    currentScreen = number;
+
+
+    document
+      .querySelectorAll(".screen")
+      .forEach(screen => {
+
+        screen.classList.remove("active");
+
+      });
+
+
+    if (number === 1) {
+
+      document
+        .getElementById("welcomeScreen")
+        .classList.add("active");
+
+    }
+
+
+    if (number === 2) {
+
+      document
+        .getElementById("patientScreen")
+        .classList.add("active");
+
+    }
+
+
+    if (number === 3) {
+
+      document
+        .getElementById("consentScreen")
+        .classList.add("active");
+
+    }
+
+
+    if (number === 4) {
+
+      document
+        .getElementById("interviewScreen")
+        .classList.add("active");
+
+    }
+
+
+    updateProgress();
+
+  }
+
+
+  /* =========================================================
+     PROGRESS BAR
+     ========================================================= */
+
+  function updateProgress() {
+
+    const progressFill =
+      document.getElementById("progressFill");
+
+    const progressText =
+      document.getElementById("progressText");
+
+    const progressName =
+      document.getElementById("progressName");
+
+
+    const names = {
+
+      en: [
+        "Welcome",
+        "Patient Details",
+        "Consent",
+        "Interview"
+      ],
+
+      hi: [
+        "स्वागत",
+        "मरीज़ का विवरण",
+        "सहमति",
+        "बातचीत"
+      ]
+
+    };
+
+
+    const percentage =
+      currentScreen * 25;
+
+
+    progressFill.style.width =
+      percentage + "%";
+
+
+    progressText.textContent =
+      currentLanguage === "en"
+        ? `Step ${currentScreen} of 4`
+        : `चरण ${currentScreen} / 4`;
+
+
+    progressName.textContent =
+      names[currentLanguage][currentScreen - 1];
+
+  }
+
+
+  /* =========================================================
+     PATIENT FLOW
+     ========================================================= */
+
+  function goToPatientDetails() {
+
+    /*
+     * A completely new patient session starts.
+     */
+
+    resetPatientSession();
+
+    showScreen(2);
+
+  }
+
+
+  function resetPatientSession() {
+
+    /*
+     * Reset patient details.
+     */
+
+    patient = {
+
+      name: "",
+      age: "",
+      gender: "",
+      phone: ""
+
+    };
+
+
+    /*
+     * Reset consent.
+     *
+     * Every new patient must give consent again.
+     */
+
+    consentGiven = false;
+
+
+    /*
+     * Clear patient form.
+     */
+
+    document.getElementById("patientName").value = "";
+
+    document.getElementById("patientAge").value = "";
+
+    document.getElementById("patientGender").value = "";
+
+    document.getElementById("patientPhone").value = "";
+
+
+    /*
+     * Clear consent checkbox.
+     */
+
+    document.getElementById("consentCheckbox").checked = false;
+
+
+    /*
+     * NEW CHANGE:
+     *
+     * Clear the previous patient's interview answer.
+     */
+
+    document.getElementById("answerText").value = "";
+
+
+    /*
+     * NEW CHANGE:
+     *
+     * Reset microphone status for the new patient.
+     */
+
+    document.getElementById("micStatus").textContent =
+      translations[currentLanguage].micReady;
+
+
+    /*
+     * Remove listening animation if it was active.
+     */
+
+    document
+      .getElementById("micButton")
+      .classList.remove("listening");
+
+
+    isListening = false;
+
+
+    updateConsentButton();
+
+  }
+
+
+  function goToWelcome() {
+
+    showScreen(1);
+
+  }
+
+
+  function savePatientAndContinue() {
+
+    const name =
+      document.getElementById("patientName").value.trim();
+
+    const age =
+      document.getElementById("patientAge").value.trim();
+
+    const gender =
+      document.getElementById("patientGender").value;
+
+    const phone =
+      document.getElementById("patientPhone").value.trim();
+
+
+    const t =
+      translations[currentLanguage];
+
+
+    if (!name) {
+
+      alert(t.enterName);
+
+      return;
+
+    }
+
+
+    if (!age) {
+
+      alert(t.enterAge);
+
+      return;
+
+    }
+
+
+    if (!gender) {
+
+      alert(t.selectGenderAlert);
+
+      return;
+
+    }
+
+
+    if (!phone) {
+
+      alert(t.enterPhone);
+
+      return;
+
+    }
+
+
+    patient.name = name;
+
+    patient.age = age;
+
+    patient.gender = gender;
+
+    patient.phone = phone;
+
+
+    /*
+     * Consent is always fresh for the current patient.
+     */
+
+    consentGiven = false;
+
+    document.getElementById("consentCheckbox").checked = false;
+
+    updateConsentButton();
+
+
+    showScreen(3);
+
+  }
+
+
+  /* =========================================================
+     CONSENT
+     ========================================================= */
+
+  function updateConsentButton() {
+
+    const checkbox =
+      document.getElementById("consentCheckbox");
+
+    const button =
+      document.getElementById("consentContinueButton");
+
+
+    consentGiven =
+      checkbox.checked;
+
+
+    button.disabled =
+      !consentGiven;
+
+  }
+
+
+  function goToPatientDetailsFromConsent() {
+
+    showScreen(2);
+
+  }
+
+
+  function goToInterview() {
+
+    const t =
+      translations[currentLanguage];
+
+
+    if (!consentGiven) {
+
+      alert(t.giveConsent);
+
+      return;
+
+    }
+
+
+    updatePatientGreeting();
+
+    showScreen(4);
+
+  }
+
+
+  /* =========================================================
+     PATIENT NAME GREETING
+     ========================================================= */
+
+  function updatePatientGreeting() {
+
+    const greeting =
+      document.getElementById("patientGreeting");
+
+
+    if (!greeting) {
+      return;
+    }
+
+
+    const name =
+      patient.name || "Patient";
+
+
+    const template =
+      translations[currentLanguage].greeting;
+
+
+    /*
+     * The patient's name is kept exactly as entered.
+     *
+     * Example:
+     *
+     * Rahul Kumar
+     * →
+     * नमस्ते, Rahul Kumar।
+     *
+     * राहुल कुमार
+     * →
+     * नमस्ते, राहुल कुमार।
+     */
+
+    greeting.textContent =
+      template.replace("{name}", name);
+
+  }
+
+
+  /* =========================================================
+     INTERVIEW NAVIGATION
+     ========================================================= */
+
+  function goToConsentFromInterview() {
+
+    stopVoiceInput();
+
+    showScreen(3);
+
+  }
+
+
+  /* =========================================================
+     BROWSER SPEECH RECOGNITION
+     ========================================================= */
+
+  function startVoiceInput() {
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+
+    const t =
+      translations[currentLanguage];
+
+
+    if (!SpeechRecognition) {
+
+      alert(t.micNotSupported);
+
+      return;
+
+    }
+
+
+    if (isListening) {
+
+      stopVoiceInput();
+
+      return;
+
+    }
+
+
+    recognition =
+      new SpeechRecognition();
+
+
+    recognition.lang =
+      currentLanguage === "hi"
+        ? "hi-IN"
+        : "en-IN";
+
+
+    recognition.continuous =
+      false;
+
+
+    recognition.interimResults =
+      false;
+
+
+    recognition.maxAlternatives =
+      1;
+
+
+    recognition.onstart = function() {
+
+      isListening = true;
+
+
+      const micButton =
+        document.getElementById("micButton");
+
+      const micStatus =
+        document.getElementById("micStatus");
+
+
+      micButton.classList.add("listening");
+
+
+      micStatus.textContent =
+        translations[currentLanguage].micListening;
+
+    };
+
+
+    recognition.onresult = function(event) {
+
+      const transcript =
+        event.results[0][0].transcript;
+
+
+      document.getElementById("answerText").value =
+        transcript;
+
+    };
+
+
+    recognition.onerror = function() {
+
+      isListening = false;
+
+
+      const micButton =
+        document.getElementById("micButton");
+
+      const micStatus =
+        document.getElementById("micStatus");
+
+
+      micButton.classList.remove("listening");
+
+
+      micStatus.textContent =
+        translations[currentLanguage].micError;
+
+    };
+
+
+    recognition.onend = function() {
+
+      isListening = false;
+
+
+      const micButton =
+        document.getElementById("micButton");
+
+      const micStatus =
+        document.getElementById("micStatus");
+
+
+      micButton.classList.remove("listening");
+
+
+      micStatus.textContent =
+        translations[currentLanguage].micReady;
+
+    };
+
+
+    try {
+
+      recognition.start();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  }
+
+
+  function stopVoiceInput() {
+
+    if (recognition) {
+
+      try {
+
+        recognition.stop();
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    }
+
+
+    isListening = false;
+
+
+    const micButton =
+      document.getElementById("micButton");
+
+
+    if (micButton) {
+
+      micButton.classList.remove("listening");
+
+    }
+
+  }
+
+
+  /* =========================================================
+     SUBMIT INTERVIEW
+     ========================================================= */
+
+  function submitInterview() {
+
+    const answer =
+      document.getElementById("answerText").value.trim();
+
+
+    const t =
+      translations[currentLanguage];
+
+
+    if (!answer) {
+
+      alert(t.noAnswer);
+
+      return;
+
+    }
+
+
+    stopVoiceInput();
+
+
+    console.log("Patient:", patient);
+
+    console.log("Consent:", consentGiven);
+
+    console.log("Interview answer:", answer);
+
+
+    alert(t.answerRecorded);
+
+  }
+
+
+  /* =========================================================
+     HELP MODAL
+     ========================================================= */
+
+  function openHelp() {
+
+    document
+      .getElementById("helpModal")
+      .classList.add("show");
+
+  }
+
+
+  function closeHelp() {
+
+    document
+      .getElementById("helpModal")
+      .classList.remove("show");
+
+  }
+
+
+  function closeHelpOutside(event) {
+
+    if (
+      event.target.id === "helpModal"
+    ) {
+
+      closeHelp();
+
+    }
+
+  }
+
+
+  /* =========================================================
+     INITIALISE
+     ========================================================= */
+
+  updateLanguage();
+
+
+  /*
+   * Always start with no consent.
+   */
+
+  consentGiven = false;
+
+  document.getElementById("consentCheckbox").checked = false;
+
+  updateConsentButton();
+
+</script>
+
+</body>
+</html>
